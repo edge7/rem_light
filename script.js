@@ -113,7 +113,7 @@ async function onResults(results) {
         const result = model.predict(batched)
         let res_y = Math.round(bbox.height * canvasElement.height)
         let res_x = Math.round(bbox.width * canvasElement.width)
-        let pred = result.mul(tf.scalar(0.5)).add(tf.scalar(0.5)).squeeze().resizeBilinear([res_y, res_x])
+        let pred = result.mul(tf.scalar(0.5)).add(tf.scalar(0.5)).squeeze()
 
 
         // Convert the pred tensor to a pixel array.
@@ -125,6 +125,7 @@ async function onResults(results) {
             if (inserted >= maxSize){
                 pred = computeAverage(tensorArray)
             }
+            pred = pred.resizeBilinear([res_y, res_x])
             await tf.browser.toPixels(pred, canvas_output);
             old = canvas_output
         }
