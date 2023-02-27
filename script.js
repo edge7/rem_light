@@ -11,7 +11,18 @@ let model = await tf.loadGraphModel(modelUrl);
 tf.enableProdMode()
 
 let canvas_output = document.getElementById("canvas_output")
+const maxSize = 3; // maximum size of the array
+const tensorArray = new Array(maxSize);
+var inserted = 0;
 
+function insertElement(element, index, array, maxSize) {
+    array[index % maxSize] = element;
+}
+
+function computeAverage(array) {
+    const sum = array.reduce((acc, tensor) => acc.add(tensor));
+    return sum.div(array.length);
+}
 
 // Usage: testSupport({client?: string, os?: string}[])
 // Client and os are regular expressions.
@@ -102,13 +113,18 @@ async function onResults(results) {
         const result = model.predict(batched)
         let res_y = Math.round(bbox.height * canvasElement.height)
         let res_x = Math.round(bbox.width * canvasElement.width)
-        const pred = result.mul(tf.scalar(0.5)).add(tf.scalar(0.5)).squeeze().resizeBilinear([res_y, res_x])
+        let pred = result.mul(tf.scalar(0.5)).add(tf.scalar(0.5)).squeeze().resizeBilinear([res_y, res_x])
 
 
         // Convert the pred tensor to a pixel array.
         // Create an ImageData object from the pixel array.
         canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
         if ( cc % 1 === 0) {
+            insertElement(pred, inserted, tensorArray, maxSize)
+            inserted +=1
+            if (inserted >= maxSize){
+                pred = computeAverage(tensorArray)
+            }
             await tf.browser.toPixels(pred, canvas_output);
             old = canvas_output
         }
