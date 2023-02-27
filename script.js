@@ -3,7 +3,7 @@ import DeviceDetector from "https://cdn.skypack.dev/device-detector-js@2.2.10";
 
 
 // Variables
-const modelName = "pixtopix32_128_20feb_shrinked_retr_unet_best_graph_model_tfjs";
+const modelName = "pixtopix_shrinked_twice_128_24feb_retr_best_graph_model_tfjs";
 let modelUrl = `assets/${modelName}/model.json`;
 console.log("model", modelUrl);
 
